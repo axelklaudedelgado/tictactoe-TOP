@@ -27,16 +27,18 @@ const gameboard = (() => {
   
   const getBoard = () => board;
 
+  const getBoardValues = () => board.map((row) => row.map((cell) => cell.getValue()));
+
   const placeMarker = (row, column, marker) => {
     board[row][column].addMarker(marker);
   };
 
   const printBoard = () => {
-    const boardWithCellValues = board.map((row) => row.map((cell) => cell.getValue()))
+    const boardWithCellValues = getBoardValues();
     console.log(boardWithCellValues);
   };
 
-  return { getBoard, placeMarker, printBoard };
+  return { getBoard, getBoardValues, placeMarker, printBoard };
 })();
 
 function createPlayer(playerNumber, marker)  {
@@ -64,6 +66,32 @@ const gameController = (() => {
 
   const getActivePlayer = () => activePlayer;
 
+  const checkWinner = () => {
+    const currentBoard = gameboard.getBoardValues();
+
+    const allEqual = array => array.every(value => (value === "X" || value === "O") && value === array[0]);
+
+    const checkHorizontalWinner = () => currentBoard.some(row => allEqual(row));
+
+    const checkVerticalWinner = () => {
+      const [firstRow, secondRow, thirdRow] = currentBoard;
+      return firstRow.some((value, index) => allEqual([value, secondRow[index], thirdRow[index]]));
+    };
+
+    const checkDiagonalWinner = () => {
+      const getDiagonal = () => currentBoard.map((row, index) => row[index]);
+      const getReverseDiagonal = () => currentBoard.map((row, index) => [...row].reverse()[index]);
+
+      return allEqual(getDiagonal()) || allEqual(getReverseDiagonal());
+    };
+
+    if( checkHorizontalWinner() || checkVerticalWinner() || checkDiagonalWinner() ) {
+      console.log(`${getActivePlayer().getName()} wins!`);
+      gameboard.printBoard();
+      return true;
+    }
+  }
+
   const printNewRound = () => {
     gameboard.printBoard();
     console.log(`${getActivePlayer().getName()}'s turn.`);
@@ -72,8 +100,7 @@ const gameController = (() => {
   const playRound = (row, column) => {
     gameboard.placeMarker(row, column, getActivePlayer().getMarker());
 
-    /*  This is where we would check for a winner and handle that logic,
-        such as a win message. */
+    if(checkWinner()) return;
 
     switchPlayerTurn();
     printNewRound();
