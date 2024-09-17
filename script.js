@@ -98,11 +98,16 @@ const gameController = (() => {
   };
 
   const playRound = (row, column) => {
-    gameboard.placeMarker(row, column, getActivePlayer().getMarker());
+    const board = gameboard.getBoard();
+    if((board[row][column]).getValue() === "0") {
+      gameboard.placeMarker(row, column, getActivePlayer().getMarker());
 
-    if(checkWinner()) return;
+      if(checkWinner()) return;
 
-    switchPlayerTurn();
+      switchPlayerTurn();
+    } else {
+      console.log("Space is occupied! Please try again.")
+    }
     printNewRound();
   };
 
