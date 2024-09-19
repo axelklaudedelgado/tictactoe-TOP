@@ -58,6 +58,8 @@ const gameController = (() => {
     createPlayer(2, "O")
   ];
 
+  const getPlayers = () => players;
+
   let activePlayer = players[0];
 
   const switchPlayerTurn = () => {
@@ -115,19 +117,24 @@ const gameController = (() => {
 
   return {
     playRound,
-    getActivePlayer
+    getActivePlayer,
+    getPlayers
   };
 })();
 
 const ScreenController = (() => {
-  const playerTurnDiv = document.querySelector('.turn');
+  const playerTurnDiv = document.querySelector('.marker');
   const boardDiv = document.querySelector('.board');
+  
+  const playerOneScore = document.querySelector("#playerOneScore");
+  const tieScore = document.querySelector("#tieScore");
+  const playerTwoScore = document.querySelector("#playerTwoScore");
 
   const updateScreen = () => {
     const board = gameboard.getBoard();
     const activePlayer = gameController.getActivePlayer();
 
-    playerTurnDiv.textContent = `${activePlayer.getMarker()}'s turn...`;
+    playerTurnDiv.textContent = `${activePlayer.getMarker()}`;
 
     board.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
@@ -141,13 +148,27 @@ const ScreenController = (() => {
     });
   };
 
+  const createScoreboard = () => {
+    const players = gameController.getPlayers();
+
+    const playerOneDisplay = document.querySelector("#playerOne");
+    const playerTwoDisplay = document.querySelector("#playerTwo");
+
+    const playerOne = players[0].getName();
+    const playerTwo = players[1].getName();
+
+    playerOneDisplay.textContent = `${playerOne}`;
+    playerTwoDisplay.textContent = `${playerTwo}`;
+
+    playerOneScore.textContent = "0";
+    tieScore.textContent = "0";
+    playerTwoScore.textContent = "0";
+  };
+
   const createGrid = () => {
     boardDiv.textContent = "";
 
     const board = gameboard.getBoard();
-    const activePlayer = gameController.getActivePlayer();
-
-    playerTurnDiv.textContent = `${activePlayer.getName()}'s turn...`
 
     board.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
@@ -179,6 +200,10 @@ const ScreenController = (() => {
   }
   boardDiv.addEventListener("click", clickHandlerBoard);
 
+  createScoreboard();
   createGrid();
 
 })();
+
+const players = gameController.getPlayers();
+players.forEach(player => console.log(player.getName()));

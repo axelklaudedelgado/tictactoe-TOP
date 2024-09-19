@@ -14,6 +14,55 @@ body {
     background-color: #1d8676;
 }
 
+.upperDisplay, .bottomInterface {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 10px;
+}
+
+.scoreDisplay {
+    height: 76.665px;
+    background-color: #d6f9f3;
+    border: none;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: "Open Sans", sans-serif;
+}
+
+.scoreText {
+    font-size: 1.5625rem;
+    font-weight: bold;
+}
+
+.buttons {
+    border: none;
+    border-radius: 25px;
+    padding: 10px 0;
+    background-color: #DFC430;
+    font-family: "Open Sans", sans-serif;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.buttons:hover {
+    background-color: #d4b636;
+}
+
+.turn {
+    justify-self: center;
+    font-size: 1.5rem;
+    font-family: "Permanent Marker", cursive;
+}
+
+.marker {
+    font-weight: bold;
+    font-size: 2rem;
+}
+
 .board {
     display: grid;
     height: 500px;

@@ -8,14 +8,18 @@
 </head>
 <body>
     <div class="container">
-        <div>
-            <h1 class="turn"></h1>
+        <div class="upperDisplay">
+            <div class="scoreDisplay"><p id="playerOne"></p><p class="scoreText" id="playerOneScore"></p></div>
+            <div class="scoreDisplay"><p id="ties">Ties</p><p class="scoreText" id="tieScore"></p></div>
+            <div class="scoreDisplay"><p id="playerTwo"></p><p class="scoreText" id="playerTwoScore"></p></div>
         </div>
-        <div>
+        <div class="gameBoard">
             <div class="board"></div>
         </div>
-        <div>
-
+        <div class="bottomInterface">
+            <button class="buttons">New Game</button>
+            <div class="turn"><span class="marker"></span> turn</div>
+            <button class="buttons">Reset</button>
         </div>
     </div>
     <script src="script.js" defer></script>
