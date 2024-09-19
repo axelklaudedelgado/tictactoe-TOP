@@ -90,7 +90,7 @@ const gameController = (() => {
       gameboard.printBoard();
       return true;
     }
-  }
+  };
 
   const printNewRound = () => {
     gameboard.printBoard();
@@ -124,6 +124,24 @@ const ScreenController = (() => {
   const boardDiv = document.querySelector('.board');
 
   const updateScreen = () => {
+    const board = gameboard.getBoard();
+    const activePlayer = gameController.getActivePlayer();
+
+    playerTurnDiv.textContent = `${activePlayer.getMarker()}'s turn...`;
+
+    board.forEach((row, rowIndex) => {
+      row.forEach((cell, columnIndex) => {
+        const cellButton = document.querySelector(`[data-row="${rowIndex}"][data-column="${columnIndex}"]`);
+        const buttonText = cellButton.children[0];
+
+        if (buttonText.textContent !== cell.getValue()) {
+          buttonText.textContent = cell.getValue();
+        }
+      });
+    });
+  };
+
+  const createGrid = () => {
     boardDiv.textContent = "";
 
     const board = gameboard.getBoard();
@@ -134,26 +152,33 @@ const ScreenController = (() => {
     board.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
         const cellButton = document.createElement("button");
+        const buttonText = document.createElement("p");
         cellButton.classList.add("cell");
         cellButton.dataset.column = columnIndex;
         cellButton.dataset.row = rowIndex;
-        cellButton.textContent = cell.getValue();
+        buttonText.textContent = cell.getValue();
+        cellButton.appendChild(buttonText);
         boardDiv.appendChild(cellButton);
       })
     })
-  }
+
+    updateScreen();
+  };
 
   function clickHandlerBoard(e) {
     const selectedRow = e.target.dataset.row;
     const selectedColumn = e.target.dataset.column;
+    const buttonText = e.target.children[0];
   
     if (!selectedColumn) return;
     
     gameController.playRound(selectedRow, selectedColumn);
+    buttonText.classList.add("markerAnimation");
+
     updateScreen();
   }
   boardDiv.addEventListener("click", clickHandlerBoard);
 
-  updateScreen();
+  createGrid();
 
 })();

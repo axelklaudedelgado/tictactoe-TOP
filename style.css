@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -31,7 +33,20 @@ body {
     border: none;
     box-shadow: 0px 7px 0px 0px #13594e;
     text-align: center;
-    font-size: 2rem;
+    font-size: 4rem;
     background-color: #30dfc4;
     cursor: pointer;
+    font-family: "Permanent Marker", cursive;
+}
+
+.markerAnimation {
+    animation-name: markerAnimation;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes markerAnimation {
+    0% {font-size: 0;}
+    60% {font-size: 6rem;}
+    100% {font-size: 4rem;} 
 }
