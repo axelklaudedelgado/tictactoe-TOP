@@ -100,17 +100,22 @@ const gameController = (() => {
   };
 
   const playRound = (row, column) => {
-    const board = gameboard.getBoard();
-    if((board[row][column]).getValue() === undefined) {
+    if (isMoveValid(row, column)) {
       gameboard.placeMarker(row, column, getActivePlayer().getMarker());
-
-      if(checkWinner()) return;
-
+      if (checkWinner()) {
+        return "win";
+      }
       switchPlayerTurn();
+      printNewRound();
+      return "valid";
     } else {
-      console.log("Space is occupied! Please try again.")
+      return "invalid";
     }
-    printNewRound();
+  };
+  
+  const isMoveValid = (row, column) => {
+    const board = gameboard.getBoard();
+    return board[row][column].getValue() === undefined;
   };
 
   printNewRound();
@@ -173,6 +178,7 @@ const ScreenController = (() => {
     board.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
         const cellButton = document.createElement("button");
+        cellButton.addEventListener("click", clickHandlerBoard);
         const buttonText = document.createElement("p");
         cellButton.classList.add("cell");
         cellButton.dataset.column = columnIndex;
@@ -187,18 +193,25 @@ const ScreenController = (() => {
   };
 
   function clickHandlerBoard(e) {
-    const selectedRow = e.target.dataset.row;
-    const selectedColumn = e.target.dataset.column;
-    const buttonText = e.target.children[0];
-  
+    const button = e.target.closest("button");
+    const selectedRow = button.dataset.row;
+    const selectedColumn = button.dataset.column;
+    const buttonText = button.children[0];
+    
     if (!selectedColumn) return;
     
-    gameController.playRound(selectedRow, selectedColumn);
+    const moveResult = gameController.playRound(selectedRow, selectedColumn);
+  
     buttonText.classList.add("markerAnimation");
-
+  
+    if (moveResult === "invalid") {
+      buttonText.classList.remove("invalidAnimation");
+      void buttonText.offsetWidth;
+      buttonText.classList.add("invalidAnimation");
+    }
+  
     updateScreen();
   }
-  boardDiv.addEventListener("click", clickHandlerBoard);
 
   createScoreboard();
   createGrid();
