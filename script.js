@@ -1,7 +1,7 @@
 const gameboard = (() => {
   const rows = 3;
   const columns = 3;
-  const board = [];
+  let board = [];
 
   function Cell() {
     let value;
@@ -18,10 +18,13 @@ const gameboard = (() => {
     };
   }
 
-  for (let i = 0; i < rows; i++) {
-    board[i] = [];
-    for (let j = 0; j < columns; j++) {
-      board[i].push(Cell());
+  const createBoard = () => {
+    board = [];
+    for (let i = 0; i < rows; i++) {
+      board[i] = [];
+      for (let j = 0; j < columns; j++) {
+        board[i].push(Cell());
+      }
     }
   }
   
@@ -38,7 +41,9 @@ const gameboard = (() => {
     console.log(boardWithCellValues);
   };
 
-  return { getBoard, getBoardValues, placeMarker, printBoard };
+  createBoard();
+
+  return { createBoard, getBoard, getBoardValues, placeMarker, printBoard };
 })();
 
 function createPlayer(playerNumber, marker)  {
@@ -65,6 +70,8 @@ const gameController = (() => {
   const switchPlayerTurn = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
   };
+
+  const resetActivePlayer = () => activePlayer = players[0];
 
   const getActivePlayer = () => activePlayer;
 
@@ -135,6 +142,7 @@ const gameController = (() => {
 
   return {
     playRound,
+    resetActivePlayer,
     getActivePlayer,
     getPlayers
   };
@@ -144,6 +152,7 @@ const ScreenController = (() => {
   const playerTurnDiv = document.querySelector(".turn");
   const playerTurnMarker = document.querySelector(".marker");
   const boardDiv = document.querySelector(".board");
+  const resetButton = document.querySelector(".reset");
   
   const playerOneScore = document.querySelector("#playerOneScore");
   const tieScore = document.querySelector("#tieScore");
@@ -238,8 +247,6 @@ const ScreenController = (() => {
     });
   };
 
-
-
   const clickHandlerBoard = (e) => {
     const button = e.target.closest("button");
     const selectedRow = button.dataset.row;
@@ -268,6 +275,16 @@ const ScreenController = (() => {
   
     updateScreen();
   }
+
+  const resetBoard = () => {
+    gameboard.createBoard();
+    gameController.resetActivePlayer();
+    createGrid();
+    playerTurnDiv.textContent = "";
+    playerTurnDiv.appendChild(playerTurnMarker);
+    playerTurnDiv.appendChild(document.createTextNode(" turn"));
+  }
+  resetButton.addEventListener("click", resetBoard);
 
   createScoreboard();
   createGrid();
