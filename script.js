@@ -70,27 +70,40 @@ const gameController = (() => {
 
   const checkWinner = () => {
     const currentBoard = gameboard.getBoardValues();
+    let winningIndex;
 
     const allEqual = array => array.every(value => (value === "X" || value === "O") && value === array[0]);
 
-    const checkHorizontalWinner = () => currentBoard.some(row => allEqual(row));
+    const checkHorizontalWinner = () => currentBoard.some((row, index) => {
+      if(allEqual(row)) return winningIndex = ["horizontal", index];
+    });
 
     const checkVerticalWinner = () => {
       const [firstRow, secondRow, thirdRow] = currentBoard;
-      return firstRow.some((value, index) => allEqual([value, secondRow[index], thirdRow[index]]));
+      firstRow.some((value, index) => {
+        if(allEqual([value, secondRow[index], thirdRow[index]])) winningIndex = ["vertical", index];
+      });
+      
+      return winningIndex;
     };
 
     const checkDiagonalWinner = () => {
       const getDiagonal = () => currentBoard.map((row, index) => row[index]);
       const getReverseDiagonal = () => currentBoard.map((row, index) => [...row].reverse()[index]);
 
-      return allEqual(getDiagonal()) || allEqual(getReverseDiagonal());
+      if(allEqual(getDiagonal())) {
+        winningIndex = ["diagonal", [0, 1, 2]];
+      } else if (allEqual(getReverseDiagonal())) {
+        winningIndex = ["diagonal", [2, 1, 0]];
+      }
+
+      return winningIndex;
     };
 
     if( checkHorizontalWinner() || checkVerticalWinner() || checkDiagonalWinner() ) {
       console.log(`${getActivePlayer().getName()} wins!`);
       gameboard.printBoard();
-      return true;
+      return winningIndex;
     }
   };
 
@@ -103,7 +116,7 @@ const gameController = (() => {
     if (isMoveValid(row, column)) {
       gameboard.placeMarker(row, column, getActivePlayer().getMarker());
       if (checkWinner()) {
-        return "win";
+        return ["win", checkWinner()];
       }
       switchPlayerTurn();
       printNewRound();
@@ -128,8 +141,9 @@ const gameController = (() => {
 })();
 
 const ScreenController = (() => {
-  const playerTurnDiv = document.querySelector('.marker');
-  const boardDiv = document.querySelector('.board');
+  const playerTurnDiv = document.querySelector(".turn");
+  const playerTurnMarker = document.querySelector(".marker");
+  const boardDiv = document.querySelector(".board");
   
   const playerOneScore = document.querySelector("#playerOneScore");
   const tieScore = document.querySelector("#tieScore");
@@ -139,7 +153,7 @@ const ScreenController = (() => {
     const board = gameboard.getBoard();
     const activePlayer = gameController.getActivePlayer();
 
-    playerTurnDiv.textContent = `${activePlayer.getMarker()}`;
+    playerTurnMarker.textContent = `${activePlayer.getMarker()}`;
 
     board.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
@@ -196,7 +210,37 @@ const ScreenController = (() => {
     Array.from(boardDiv.children).forEach(button => button.removeEventListener("click", clickHandlerBoard));
   }
 
-  function clickHandlerBoard(e) {
+  const highlightWinner = (winnerResult) => {
+    const [winType, indices] = winnerResult;
+    if(winType === "horizontal") {
+      const winRow = indices;
+      const winnerCells = document.querySelectorAll(`[data-row="${winRow}"`);
+      applyWinAnimation(winnerCells);
+    } else if(winType === "vertical") {
+      const winColumn = indices;
+      const winnerCells = document.querySelectorAll(`[data-column="${winColumn}"`);
+      applyWinAnimation(winnerCells);
+    } else if(winType === "diagonal") {
+      const winnerCells = [];
+      console.log(indices);
+      indices.forEach((columnIndex, rowIndex) => winnerCells.push(document.querySelector(`[data-row="${rowIndex}"][data-column="${columnIndex}"]`)));
+      console.log(winnerCells);
+      applyWinAnimation(winnerCells);
+    }
+  }
+
+  const applyWinAnimation = (cells) => {
+    let delay = 0;
+    cells.forEach(cell => {
+      cell.classList.add("winAnimation");
+      cell.style.animationDelay = `${delay}s`;
+      delay += 0.15;
+    });
+  };
+
+
+
+  const clickHandlerBoard = (e) => {
     const button = e.target.closest("button");
     const selectedRow = button.dataset.row;
     const selectedColumn = button.dataset.column;
@@ -214,7 +258,11 @@ const ScreenController = (() => {
       buttonText.classList.add("invalidAnimation");
     }
 
-    if (moveResult === "win") {
+    if (moveResult[0] === "win") {
+      playerTurnDiv.textContent = "";
+      playerTurnDiv.appendChild(playerTurnMarker);
+      playerTurnDiv.appendChild(document.createTextNode(" wins!"));
+      highlightWinner(moveResult[1]);
       deactivateBoard();
     }
   
