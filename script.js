@@ -192,6 +192,10 @@ const ScreenController = (() => {
     updateScreen();
   };
 
+  const deactivateBoard = () => {
+    Array.from(boardDiv.children).forEach(button => button.removeEventListener("click", clickHandlerBoard));
+  }
+
   function clickHandlerBoard(e) {
     const button = e.target.closest("button");
     const selectedRow = button.dataset.row;
@@ -208,6 +212,10 @@ const ScreenController = (() => {
       buttonText.classList.remove("invalidAnimation");
       void buttonText.offsetWidth;
       buttonText.classList.add("invalidAnimation");
+    }
+
+    if (moveResult === "win") {
+      deactivateBoard();
     }
   
     updateScreen();
