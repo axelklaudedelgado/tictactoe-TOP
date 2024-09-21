@@ -129,5 +129,5 @@ body {
     0% { transform: translateY(0); }
     20% { transform: translateY(-20px) }
     40% { transform: translateY(0); }
-    100% { transform: translateY(0); background-color: #1EE196;}
+    100% { transform: translateY(0); background-color: #30DF6C;}
 }
