@@ -71,7 +71,7 @@ const gameController = (() => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
   };
 
-  const resetActivePlayer = () => activePlayer = players[0];
+  const setActivePlayer = (player) => activePlayer = player;
 
   const getActivePlayer = () => activePlayer;
 
@@ -149,8 +149,9 @@ const gameController = (() => {
   printNewRound();
 
   return {
+    switchPlayerTurn,
     playRound,
-    resetActivePlayer,
+    setActivePlayer,
     getActivePlayer,
     getPlayers
   };
@@ -165,6 +166,8 @@ const ScreenController = (() => {
   const playerOneScore = document.querySelector("#playerOneScore");
   const tieScore = document.querySelector("#tieScore");
   const playerTwoScore = document.querySelector("#playerTwoScore");
+
+  let roundActivePlayer;
 
   const updateScreen = () => {
     const board = gameboard.getBoard();
@@ -219,6 +222,8 @@ const ScreenController = (() => {
   const createGrid = () => {
     boardDiv.textContent = "";
     resetButton.textContent = "Reset Round";
+
+    roundActivePlayer = gameController.getActivePlayer();
 
     const board = gameboard.getBoard();
 
@@ -312,7 +317,7 @@ const ScreenController = (() => {
 
   const resetBoard = () => {
     gameboard.createBoard();
-    gameController.resetActivePlayer();
+    resetButton.textContent === "Next Round" && (playerTurnDiv.children[0].textContent !== "Tie") ? gameController.switchPlayerTurn() : gameController.setActivePlayer(roundActivePlayer);
     createGrid();
     playerTurnDiv.textContent = "";
     playerTurnDiv.appendChild(playerTurnMarker);
