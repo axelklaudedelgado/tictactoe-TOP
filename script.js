@@ -124,6 +124,8 @@ const gameController = (() => {
       gameboard.placeMarker(row, column, getActivePlayer().getMarker());
       if (checkWinner()) {
         return ["win", checkWinner()];
+      } else if(!(checkWinner()) && boardIsFull()) {
+        return "tie";
       }
       switchPlayerTurn();
       printNewRound();
@@ -137,6 +139,12 @@ const gameController = (() => {
     const board = gameboard.getBoard();
     return board[row][column].getValue() === undefined;
   };
+
+  const boardIsFull = () => {
+    if((gameboard.getBoardValues()).every(row => row.every(cell => cell !== undefined))) {
+      return true;
+    }
+  }
 
   printNewRound();
 
@@ -193,6 +201,21 @@ const ScreenController = (() => {
     playerTwoScore.textContent = "0";
   };
 
+  const updateScoreboard = (tie=false) => {
+    const players = gameController.getPlayers();
+
+    if (tie === true) {
+      let currentTieScore = parseInt(tieScore.textContent);
+      tieScore.textContent = currentTieScore + 1;
+    } else if (playerTurnMarker.textContent === players[0].getMarker()) {
+      let currentPlayerOneScore = parseInt(playerOneScore.textContent);
+      playerOneScore.textContent = currentPlayerOneScore + 1;
+    } else {
+      let currentPlayerTwoScore = parseInt(playerTwoScore.textContent);
+      playerTwoScore.textContent = currentPlayerTwoScore + 1;
+    } 
+  }
+
   const createGrid = () => {
     boardDiv.textContent = "";
 
@@ -233,7 +256,6 @@ const ScreenController = (() => {
       const winnerCells = [];
       console.log(indices);
       indices.forEach((columnIndex, rowIndex) => winnerCells.push(document.querySelector(`[data-row="${rowIndex}"][data-column="${columnIndex}"]`)));
-      console.log(winnerCells);
       applyWinAnimation(winnerCells);
     }
   }
@@ -269,7 +291,16 @@ const ScreenController = (() => {
       playerTurnDiv.textContent = "";
       playerTurnDiv.appendChild(playerTurnMarker);
       playerTurnDiv.appendChild(document.createTextNode(" wins!"));
+      updateScoreboard();
       highlightWinner(moveResult[1]);
+      deactivateBoard();
+    } else if(moveResult === "tie") {
+      playerTurnDiv.textContent = "";
+      const span = document.createElement("span");
+      span.style.fontSize = "2rem";
+      span.textContent = "Tie";
+      playerTurnDiv.appendChild(span);
+      updateScoreboard(true);
       deactivateBoard();
     }
   
