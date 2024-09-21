@@ -218,6 +218,7 @@ const ScreenController = (() => {
 
   const createGrid = () => {
     boardDiv.textContent = "";
+    resetButton.textContent = "Reset Round";
 
     const board = gameboard.getBoard();
 
@@ -291,6 +292,7 @@ const ScreenController = (() => {
       playerTurnDiv.textContent = "";
       playerTurnDiv.appendChild(playerTurnMarker);
       playerTurnDiv.appendChild(document.createTextNode(" wins!"));
+      resetButton.textContent = "Next Round"
       updateScoreboard();
       highlightWinner(moveResult[1]);
       deactivateBoard();
@@ -299,6 +301,7 @@ const ScreenController = (() => {
       const span = document.createElement("span");
       span.style.fontSize = "2rem";
       span.textContent = "Tie";
+      resetButton.textContent = "Next Round"
       playerTurnDiv.appendChild(span);
       updateScoreboard(true);
       deactivateBoard();
