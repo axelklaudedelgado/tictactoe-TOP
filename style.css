@@ -112,7 +112,8 @@ body {
 }
 
 .winTurn {
-    background-color: #30DF6C;
+    background-color: #DF304B;
+    color: white;
 }
 
 @keyframes markerAnimation {
@@ -139,5 +140,5 @@ body {
     0% { transform: translateY(0); }
     20% { transform: translateY(-20px) }
     40% { transform: translateY(0); }
-    100% { transform: translateY(0); background-color: #30DF6C;}
+    100% { transform: translateY(0); background-color: #DF304B; color: white;}
 }
