@@ -122,11 +122,13 @@ const gameController = (() => {
   const playRound = (row, column) => {
     if (isMoveValid(row, column)) {
       gameboard.placeMarker(row, column, getActivePlayer().getMarker());
-      if (checkWinner()) {
-        return ["win", checkWinner()];
-      } else if(!(checkWinner()) && boardIsFull()) {
+      const winnerResult = checkWinner();
+      if (winnerResult) {
+        return ["win", winnerResult];
+      } else if (!winnerResult && boardIsFull()) {
         return "tie";
       }
+
       switchPlayerTurn();
       printNewRound();
       return "valid";
@@ -177,33 +179,32 @@ const ScreenController = (() => {
 
   let roundActivePlayer;
 
-  const updateScreen = () => {
-    const board = gameboard.getBoard();
-    const activePlayer = gameController.getActivePlayer();
+  const resetTurnClasses = () => {
+    const turnDivs = [playerOneDiv, playerTwoDiv, tieDiv];
+    turnDivs.forEach(div => div.classList.replace("winTurn", "inactiveTurn"));
+  };
 
-    playerTurnMarker.textContent = `${activePlayer.getMarker()}`;
-
-    if (playerOneDiv.classList.contains("winTurn")) {
-      playerOneDiv.classList.replace("winTurn", "inactiveTurn");
-    } else if (playerTwoDiv.classList.contains("winTurn")) {
-      playerTwoDiv.classList.replace("winTurn", "inactiveTurn");
-    } else if (tieDiv.classList.contains("winTurn")) {
-      tieDiv.classList.replace("winTurn", "inactiveTurn");
-    }
-
-    if(playerTurnMarker.textContent === players[0].getMarker()) {
+  const updateTurnColor = (activeMarker, playerOneDiv, playerTwoDiv) => {
+    if (activeMarker === players[0].getMarker()) {
       playerTwoDiv.classList.replace("activeTurn", "inactiveTurn");
       playerOneDiv.classList.replace("inactiveTurn", "activeTurn");
-    } else if(playerTurnMarker.textContent === players[1].getMarker()) {
+    } else {
       playerOneDiv.classList.replace("activeTurn", "inactiveTurn");
       playerTwoDiv.classList.replace("inactiveTurn", "activeTurn");
     }
-
-    board.forEach((row, rowIndex) => {
+  };
+  
+  const updateScreen = () => {
+    const activePlayer = gameController.getActivePlayer();
+    playerTurnMarker.textContent = `${activePlayer.getMarker()}`;
+  
+    resetTurnClasses();
+    updateTurnColor(activePlayer.getMarker(), playerOneDiv, playerTwoDiv);
+  
+    gameboard.getBoard().forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
         const cellButton = document.querySelector(`[data-row="${rowIndex}"][data-column="${columnIndex}"]`);
         const buttonText = cellButton.children[0];
-
         if (buttonText.textContent !== cell.getValue()) {
           buttonText.textContent = cell.getValue();
         }
@@ -226,23 +227,31 @@ const ScreenController = (() => {
     playerTwoScore.textContent = "0";
   };
   
+  const incrementScore = (scoreElement) => {
+    let currentScore = parseInt(scoreElement.textContent);
+    scoreElement.textContent = currentScore + 1;
+  };
+  
   const updateScoreboard = (tie=false) => {
-    if (tie === true) {
-      let currentTieScore = parseInt(tieScore.textContent);
-      playerOneDiv.classList.replace("activeTurn", "inactiveTurn");
-      playerTwoDiv.classList.replace("activeTurn", "inactiveTurn");
+    resetTurnClasses();
+    
+    if (tie) {
+      if (playerOneDiv.classList.contains("activeTurn")) {
+        playerOneDiv.classList.replace("activeTurn", "inactiveTurn");
+      }
+      if (playerTwoDiv.classList.contains("activeTurn")) {
+        playerTwoDiv.classList.replace("activeTurn", "inactiveTurn");
+      }
       tieDiv.classList.add("winTurn");
-      tieScore.textContent = currentTieScore + 1;
+      incrementScore(tieScore);
     } else if (playerTurnMarker.textContent === players[0].getMarker()) {
-      let currentPlayerOneScore = parseInt(playerOneScore.textContent);
       playerOneDiv.classList.replace("activeTurn", "winTurn");
-      playerOneScore.textContent = currentPlayerOneScore + 1;
+      incrementScore(playerOneScore);
     } else {
-      let currentPlayerTwoScore = parseInt(playerTwoScore.textContent);
       playerTwoDiv.classList.replace("activeTurn", "winTurn");
-      playerTwoScore.textContent = currentPlayerTwoScore + 1;
-    } 
-  }
+      incrementScore(playerTwoScore);
+    }
+  };
 
   const createGrid = () => {
     boardDiv.textContent = "";
@@ -275,21 +284,20 @@ const ScreenController = (() => {
 
   const highlightWinner = (winnerResult) => {
     const [winType, indices] = winnerResult;
-    if(winType === "horizontal") {
-      const winRow = indices;
-      const winnerCells = document.querySelectorAll(`[data-row="${winRow}"`);
-      applyWinAnimation(winnerCells);
-    } else if(winType === "vertical") {
-      const winColumn = indices;
-      const winnerCells = document.querySelectorAll(`[data-column="${winColumn}"`);
-      applyWinAnimation(winnerCells);
-    } else if(winType === "diagonal") {
-      const winnerCells = [];
-      console.log(indices);
-      indices.forEach((columnIndex, rowIndex) => winnerCells.push(document.querySelector(`[data-row="${rowIndex}"][data-column="${columnIndex}"]`)));
-      applyWinAnimation(winnerCells);
+    let winnerCells = [];
+  
+    if (winType === "horizontal") {
+      winnerCells = document.querySelectorAll(`[data-row="${indices}"]`);
+    } else if (winType === "vertical") {
+      winnerCells = document.querySelectorAll(`[data-column="${indices}"]`);
+    } else if (winType === "diagonal") {
+      indices.forEach((columnIndex, rowIndex) => 
+        winnerCells.push(document.querySelector(`[data-row="${rowIndex}"][data-column="${columnIndex}"]`))
+      );
     }
-  }
+  
+    applyWinAnimation(winnerCells);
+  };
 
   const applyWinAnimation = (cells) => {
     let delay = 0;
