@@ -158,9 +158,17 @@ const gameController = (() => {
 })();
 
 const ScreenController = (() => {
+  let players = gameController.getPlayers();
+
   const playerTurnDiv = document.querySelector(".turn");
   const playerTurnMarker = document.querySelector(".marker");
+
+  const playerOneDiv = document.querySelector("#playerOneDiv");
+  const tieDiv = document.querySelector("#tieDiv");
+  const playerTwoDiv = document.querySelector("#playerTwoDiv");
+
   const boardDiv = document.querySelector(".board");
+  
   const resetButton = document.querySelector(".reset");
   
   const playerOneScore = document.querySelector("#playerOneScore");
@@ -175,6 +183,22 @@ const ScreenController = (() => {
 
     playerTurnMarker.textContent = `${activePlayer.getMarker()}`;
 
+    if (playerOneDiv.classList.contains("winTurn")) {
+      playerOneDiv.classList.replace("winTurn", "inactiveTurn");
+    } else if (playerTwoDiv.classList.contains("winTurn")) {
+      playerTwoDiv.classList.replace("winTurn", "inactiveTurn");
+    } else if (tieDiv.classList.contains("winTurn")) {
+      tieDiv.classList.replace("winTurn", "inactiveTurn");
+    }
+
+    if(playerTurnMarker.textContent === players[0].getMarker()) {
+      playerTwoDiv.classList.replace("activeTurn", "inactiveTurn");
+      playerOneDiv.classList.replace("inactiveTurn", "activeTurn");
+    } else if(playerTurnMarker.textContent === players[1].getMarker()) {
+      playerOneDiv.classList.replace("activeTurn", "inactiveTurn");
+      playerTwoDiv.classList.replace("inactiveTurn", "activeTurn");
+    }
+
     board.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
         const cellButton = document.querySelector(`[data-row="${rowIndex}"][data-column="${columnIndex}"]`);
@@ -188,33 +212,34 @@ const ScreenController = (() => {
   };
 
   const createScoreboard = () => {
-    const players = gameController.getPlayers();
-
-    const playerOneDisplay = document.querySelector("#playerOne");
-    const playerTwoDisplay = document.querySelector("#playerTwo");
+    const playerOneText = document.querySelector("#playerOneName");
+    const playerTwoText = document.querySelector("#playerTwoName");
 
     const playerOne = players[0].getName();
     const playerTwo = players[1].getName();
 
-    playerOneDisplay.textContent = `${playerOne}`;
-    playerTwoDisplay.textContent = `${playerTwo}`;
+    playerOneText.textContent = `${playerOne}`;
+    playerTwoText.textContent = `${playerTwo}`;
 
     playerOneScore.textContent = "0";
     tieScore.textContent = "0";
     playerTwoScore.textContent = "0";
   };
-
+  
   const updateScoreboard = (tie=false) => {
-    const players = gameController.getPlayers();
-
     if (tie === true) {
       let currentTieScore = parseInt(tieScore.textContent);
+      playerOneDiv.classList.replace("activeTurn", "inactiveTurn");
+      playerTwoDiv.classList.replace("activeTurn", "inactiveTurn");
+      tieDiv.classList.add("winTurn");
       tieScore.textContent = currentTieScore + 1;
     } else if (playerTurnMarker.textContent === players[0].getMarker()) {
       let currentPlayerOneScore = parseInt(playerOneScore.textContent);
+      playerOneDiv.classList.replace("activeTurn", "winTurn");
       playerOneScore.textContent = currentPlayerOneScore + 1;
     } else {
       let currentPlayerTwoScore = parseInt(playerTwoScore.textContent);
+      playerTwoDiv.classList.replace("activeTurn", "winTurn");
       playerTwoScore.textContent = currentPlayerTwoScore + 1;
     } 
   }
@@ -292,6 +317,8 @@ const ScreenController = (() => {
       void buttonText.offsetWidth;
       buttonText.classList.add("invalidAnimation");
     }
+  
+    updateScreen();
 
     if (moveResult[0] === "win") {
       playerTurnDiv.textContent = "";
@@ -311,8 +338,6 @@ const ScreenController = (() => {
       updateScoreboard(true);
       deactivateBoard();
     }
-  
-    updateScreen();
   }
 
   const resetBoard = () => {

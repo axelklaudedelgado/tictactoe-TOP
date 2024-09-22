@@ -23,7 +23,6 @@ body {
 
 .scoreDisplay {
     height: 76.665px;
-    background-color: #d6f9f3;
     border: none;
     border-radius: 25px;
     display: flex;
@@ -104,6 +103,17 @@ body {
     animation: winAnimation 1s forwards;
 }
 
+.activeTurn {
+    background-color: #DFC430;
+}
+
+.inactiveTurn {
+    background-color: #d6f9f3;
+}
+
+.winTurn {
+    background-color: #30DF6C;
+}
 
 @keyframes markerAnimation {
     0% {font-size: 0;}
