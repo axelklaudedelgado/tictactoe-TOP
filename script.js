@@ -189,6 +189,7 @@ const ScreenController = (() => {
   const playerTwoScore = document.querySelector("#playerTwoScore");
 
   const playGameButton = document.querySelector(".playButton");
+  const newGameButton = document.querySelector(".newGame");
   const playerOneInput = document.querySelector("#playerOneInput");
   const playerTwoInput = document.querySelector("#playerTwoInput");
   const inputForm = document.querySelector(".inputForm");
@@ -220,6 +221,10 @@ const ScreenController = (() => {
       boardContainer.classList.replace("show", "hidden");
     }
   };
+  newGameButton.addEventListener("click", () => {
+    resetBoard();
+    toggleContainerVisibility();
+  });
 
   const resetTurnClasses = () => {
     const turnDivs = [playerOneDiv, playerTwoDiv, tieDiv];
