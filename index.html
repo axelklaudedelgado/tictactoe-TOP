@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="createPlayers">
+    <div class="createPlayers show">
         <div class="title">Tic Tac Toe</div>
         <div class="inputDiv">
             <div><p>Input names for each player and choose a marker for Player One:</p></div>
@@ -15,20 +15,20 @@
                 <form class="inputForm">
                     <div class="playerInputs">
                         <label for="playerOneInput">
-                            Player One: <input type="text" id="playerOneInput" name="playerOneInput" maxlength="15" minlength="3" class="playerInput">
+                            Player One: <input type="text" id="playerOneInput" name="playerOneInput" maxlength="12" minlength="3" class="playerInput" placeholder="Player 1" required>
                         </label>
                         <label for="playerTwoInput">
-                            Player Two: <input type="text" id="playerTwoInput" name="playerTwoInput" maxlength="15" minlength="3" class="playerInput">
+                            Player Two: <input type="text" id="playerTwoInput" name="playerTwoInput" maxlength="12" minlength="3" class="playerInput" placeholder="Player 2" required>
                         </label>
                     </div>
 
                     <div id="radios">
                         <label for="xMark">
-                            <input type="radio" name="mode" id="xMark" value="X" checked/>
+                            <input type="radio" name="marker" id="xMark" value="X" checked/>
                             <span>X</span>
                         </label>								
                         <label for="oMark">
-                            <input type="radio" name="mode" id="oMark" value="O" />
+                            <input type="radio" name="marker" id="oMark" value="O" />
                             <span>O</span>
                         </label>
                     </div>
@@ -38,7 +38,7 @@
             </div>
         </div>
     </div>
-    <div class="container" style="display: none;">
+    <div class="boardContainer hidden">
         <div class="upperDisplay">
             <div class="scoreDisplay inactiveTurn" id="playerOneDiv"><p id="playerOneName"></p><p class="scoreText" id="playerOneScore"></p></div>
             <div class="scoreDisplay inactiveTurn" id="tieDiv"><p id="ties">Ties</p><p class="scoreText" id="tieScore"></p></div>

@@ -46,9 +46,7 @@ const gameboard = (() => {
   return { createBoard, getBoard, getBoardValues, placeMarker, printBoard };
 })();
 
-function createPlayer(playerNumber, marker)  {
-  const name = prompt(`Create display name for Player ${playerNumber}: `);
-
+function createPlayer(name, marker)  {
   const getName = () => name;
 
   const getMarker = () => marker;
@@ -58,14 +56,23 @@ function createPlayer(playerNumber, marker)  {
 
 const gameController = (() => {
 
-  const players = [
-    createPlayer(1, "X"),
-    createPlayer(2, "O")
-  ];
+  let players = [];
 
   const getPlayers = () => players;
 
-  let activePlayer = players[0];
+  let activePlayer;
+
+  const setPlayers = (playerOneName, playerTwoName, marker) => {
+    const playerOneMarker = marker;
+    const playerTwoMarker = marker === "X" ? "O" : "X";
+
+    players = [
+      createPlayer(playerOneName, playerOneMarker),
+      createPlayer(playerTwoName, playerTwoMarker)
+    ];
+
+    activePlayer = players.find(player => player.getMarker() === "X"); 
+  };
 
   const switchPlayerTurn = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
@@ -116,7 +123,6 @@ const gameController = (() => {
 
   const printNewRound = () => {
     gameboard.printBoard();
-    console.log(`${getActivePlayer().getName()}'s turn.`);
   };
 
   const playRound = (row, column) => {
@@ -151,6 +157,7 @@ const gameController = (() => {
   printNewRound();
 
   return {
+    setPlayers,
     switchPlayerTurn,
     playRound,
     setActivePlayer,
@@ -160,7 +167,11 @@ const gameController = (() => {
 })();
 
 const ScreenController = (() => {
-  let players = gameController.getPlayers();
+  let roundActivePlayer;
+
+  const playerCreation = document.querySelector(".createPlayers");
+  const boardContainer = document.querySelector(".boardContainer");
+
 
   const playerTurnDiv = document.querySelector(".turn");
   const playerTurnMarker = document.querySelector(".marker");
@@ -177,14 +188,64 @@ const ScreenController = (() => {
   const tieScore = document.querySelector("#tieScore");
   const playerTwoScore = document.querySelector("#playerTwoScore");
 
-  let roundActivePlayer;
+  const playGameButton = document.querySelector(".playButton");
+  const playerOneInput = document.querySelector("#playerOneInput");
+  const playerTwoInput = document.querySelector("#playerTwoInput");
+  const inputForm = document.querySelector(".inputForm");
+
+  playGameButton.addEventListener("click", (event) => {
+    checkNameSimilar();
+
+    let isFormValid = inputForm.checkValidity();
+  
+    if(!isFormValid) {
+      inputForm.reportValidity();
+    } else {
+      event.preventDefault();
+      const [playerOneName, playerTwoName, chosenMarker] = getPlayerValues();
+      gameController.setPlayers(playerOneName, playerTwoName, chosenMarker);
+      inputForm.reset(); 
+      toggleContainerVisibility();
+      createScoreboard();
+      createGrid();
+    }
+  })
+
+  const toggleContainerVisibility = () => {
+    if (boardContainer.classList.contains("hidden")) {
+      playerCreation.classList.replace("show", "hidden");
+      boardContainer.classList.replace("hidden", "show");
+    } else {
+      playerCreation.classList.replace("hidden", "show");
+      boardContainer.classList.replace("show", "hidden");
+    }
+  };
 
   const resetTurnClasses = () => {
     const turnDivs = [playerOneDiv, playerTwoDiv, tieDiv];
     turnDivs.forEach(div => div.classList.replace("winTurn", "inactiveTurn"));
   };
 
+  const getPlayerValues = () => {
+    let playerOneName = playerOneInput.value;
+    let playerTwoName = playerTwoInput.value;
+    let chosenMarker = document.querySelector('input[name="marker"]:checked').value;
+
+    return [playerOneName, playerTwoName, chosenMarker]
+  };
+
+  const checkNameSimilar = () => {
+    if ((playerOneInput.value).toLowerCase() !== (playerTwoInput.value).toLowerCase()) {
+      playerOneInput.setCustomValidity("");
+    } else {
+      playerOneInput.setCustomValidity("Player names can't be the same!");
+    }
+  }
+  playerOneInput.addEventListener("input", checkNameSimilar);
+  playerTwoInput.addEventListener("input", checkNameSimilar);
+
   const updateTurnColor = (activeMarker, playerOneDiv, playerTwoDiv) => {
+    const players = gameController.getPlayers();
     if (activeMarker === players[0].getMarker()) {
       playerTwoDiv.classList.replace("activeTurn", "inactiveTurn");
       playerOneDiv.classList.replace("inactiveTurn", "activeTurn");
@@ -195,6 +256,7 @@ const ScreenController = (() => {
   };
   
   const updateScreen = () => {
+    const players = gameController.getPlayers(); 
     const activePlayer = gameController.getActivePlayer();
     playerTurnMarker.textContent = `${activePlayer.getMarker()}`;
   
@@ -216,6 +278,7 @@ const ScreenController = (() => {
     const playerOneText = document.querySelector("#playerOneName");
     const playerTwoText = document.querySelector("#playerTwoName");
 
+    const players = gameController.getPlayers(); 
     const playerOne = players[0].getName();
     const playerTwo = players[1].getName();
 
@@ -233,6 +296,7 @@ const ScreenController = (() => {
   };
   
   const updateScoreboard = (tie=false) => {
+    const players = gameController.getPlayers();
     resetTurnClasses();
     
     if (tie) {
@@ -357,11 +421,4 @@ const ScreenController = (() => {
     playerTurnDiv.appendChild(document.createTextNode(" turn"));
   }
   resetButton.addEventListener("click", resetBoard);
-
-  createScoreboard();
-  createGrid();
-
 })();
-
-const players = gameController.getPlayers();
-players.forEach(player => console.log(player.getName()));
